@@ -52,10 +52,11 @@ data class NewsItem(
                 }
                 
                 // Simple relative time - just check if it's today or recent
-                val now = kotlinx.datetime.Clock.System.now()
-                val currentYear = now.toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault()).year
-                val currentMonth = now.toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault()).monthNumber
-                val currentDay = now.toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault()).dayOfMonth
+                val now = Clock.System.now()
+                val currentLocalDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
+                val currentYear = currentLocalDateTime.year
+                val currentMonth = currentLocalDateTime.monthNumber
+                val currentDay = currentLocalDateTime.dayOfMonth
                 
                 return when {
                     year.toIntOrNull() == currentYear && monthNumber == currentMonth && day.toIntOrNull() == currentDay -> {
