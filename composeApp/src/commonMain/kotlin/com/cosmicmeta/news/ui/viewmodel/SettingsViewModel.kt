@@ -7,6 +7,7 @@ import com.cosmicmeta.news.data.NotificationSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.cosmicmeta.news.utils.Logger.logd
 import kotlinx.coroutines.launch
 
 class SettingsViewModel : ViewModel() {
@@ -61,7 +62,7 @@ class SettingsViewModel : ViewModel() {
     
     private fun saveSettings(settings: NotificationSettings) {
         // In a real app, save to SharedPreferences/UserDefaults
-        println("Saving settings: $settings")
+        logd("Saving settings: $settings")
     }
 }
 

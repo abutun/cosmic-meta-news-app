@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cosmicmeta.news.data.NotificationFrequency
 import com.cosmicmeta.news.ui.viewmodel.SettingsViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
-    viewModel: SettingsViewModel = koinViewModel()
+    viewModel: SettingsViewModel = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showFrequencyDialog by remember { mutableStateOf(false) }

@@ -48,7 +48,8 @@ fun RssItem.toNewsItem(): NewsItem {
         link = link,
         guid = guid ?: link,
         pubDate = pubDate,
-        category = category,
-        imageUrl = enclosure?.takeIf { it.type.startsWith("image/") }?.url
+        categories = listOfNotNull(category), // Convert single category to list
+        imageUrl = enclosure?.takeIf { it.type.startsWith("image/") }?.url,
+        source = "RSS Feed" // Default source, will be overridden by RSS parser
     )
 }

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.flow
 interface NewsRepository {
     fun getNews(): Flow<List<NewsItem>>
     suspend fun refreshNews(): List<NewsItem>
+    suspend fun getNewsPage(page: Int, pageSize: Int): List<NewsItem>
 }
 
 class NewsRepositoryImpl(
@@ -26,5 +27,9 @@ class NewsRepositoryImpl(
     override suspend fun refreshNews(): List<NewsItem> {
         cachedNews = api.fetchNews()
         return cachedNews
+    }
+    
+    override suspend fun getNewsPage(page: Int, pageSize: Int): List<NewsItem> {
+        return api.fetchNews(page, pageSize)
     }
 }

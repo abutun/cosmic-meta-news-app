@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -13,8 +15,6 @@ import com.cosmicmeta.news.data.NewsItem
 import com.cosmicmeta.news.ui.screens.NewsDetailScreen
 import com.cosmicmeta.news.ui.screens.NewsListScreen
 import com.cosmicmeta.news.ui.screens.SettingsScreen
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -34,6 +34,9 @@ fun CosmicMetaNewsApp() {
 fun AppNavigation(
     navController: NavHostController = rememberNavController()
 ) {
+    // Store selected news item in composable state
+    val selectedNewsItem = remember { mutableStateOf<NewsItem?>(null) }
+    
     NavHost(
         navController = navController,
         startDestination = "news_list"
@@ -41,9 +44,9 @@ fun AppNavigation(
         composable("news_list") {
             NewsListScreen(
                 onNewsItemClick = { newsItem ->
-                    // Serialize the news item to pass it via navigation
-                    val newsItemJson = Json.encodeToString(newsItem)
-                    navController.navigate("news_detail/$newsItemJson")
+                    // Store the news item in state instead of URL
+                    selectedNewsItem.value = newsItem
+                    navController.navigate("news_detail")
                 },
                 onSettingsClick = {
                     navController.navigate("settings")
@@ -51,10 +54,9 @@ fun AppNavigation(
             )
         }
         
-        composable("news_detail/{newsItemJson}") { backStackEntry ->
-            val newsItemJson = backStackEntry.arguments?.getString("newsItemJson")
-            if (newsItemJson != null) {
-                val newsItem = Json.decodeFromString<NewsItem>(newsItemJson)
+        composable("news_detail") {
+            val newsItem = selectedNewsItem.value
+            if (newsItem != null) {
                 NewsDetailScreen(
                     newsItem = newsItem,
                     onBackClick = {

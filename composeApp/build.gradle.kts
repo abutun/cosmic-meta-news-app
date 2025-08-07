@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 kotlin {
@@ -16,24 +17,26 @@ kotlin {
         }
     }
 
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
+    // Temporarily removing iOS targets to focus on Android development
+    // listOf(
+    //     iosX64(),
+    //     iosArm64(),
+    //     iosSimulatorArm64()
+    // ).forEach { iosTarget ->
+    //     iosTarget.binaries.framework {
+    //         baseName = "ComposeApp"
+    //         isStatic = true
+    //     }
+    // }
 
     sourceSets {
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
+            implementation(libs.ktor.client.okhttp)
         }
-        iosMain.dependencies {
-            // iOS specific dependencies if needed
-        }
+        // iosMain.dependencies {
+        //     implementation(libs.ktor.client.darwin)
+        // }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -41,6 +44,33 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            
+            // Navigation
+            implementation(libs.androidx.navigation.compose)
+
+            // Lifecycle
+            implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.androidx.lifecycle.runtime.compose)
+            
+            // Networking
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.xml)
+            
+            // Coroutines
+            implementation(libs.kotlinx.coroutines.core)
+            
+            // Serialization
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.datetime)
+            
+            // Image Loading
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
+            
+            // Dependency Injection
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
         }
     }
 }
@@ -73,6 +103,5 @@ android {
 }
 
 dependencies {
-    implementation(libs.navigation.compose)
     debugImplementation(compose.uiTooling)
 }

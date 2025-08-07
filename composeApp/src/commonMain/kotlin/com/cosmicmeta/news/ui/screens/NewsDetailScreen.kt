@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.cosmicmeta.news.data.NewsItem
+import com.cosmicmeta.news.utils.Logger.logd
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +44,7 @@ fun NewsDetailScreen(
                     IconButton(
                         onClick = {
                             // In a real app, implement sharing functionality
-                            println("Share: ${newsItem.link}")
+                            logd("Share: ${newsItem.link}")
                         }
                     ) {
                         Icon(

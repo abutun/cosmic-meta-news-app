@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cosmicmeta.news.data.NewsItem
 import com.cosmicmeta.news.repository.NewsRepository
+import com.cosmicmeta.news.utils.Logger.logd
+import com.cosmicmeta.news.utils.Logger.loge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,21 +18,28 @@ class NewsListViewModel(
     private val _uiState = MutableStateFlow(NewsListUiState())
     val uiState: StateFlow<NewsListUiState> = _uiState.asStateFlow()
     
+    private var currentPage = 0
+    private val pageSize = 10
+    private var hasMorePages = true
+    
     init {
-        loadNews()
+        loadInitialNews()
     }
     
-    fun loadNews() {
+    fun loadInitialNews() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                repository.getNews().collect { newsItems ->
-                    _uiState.value = _uiState.value.copy(
-                        news = newsItems,
-                        isLoading = false,
-                        error = null
-                    )
-                }
+                currentPage = 0
+                hasMorePages = true
+                val newsItems = repository.getNewsPage(currentPage, pageSize)
+                _uiState.value = _uiState.value.copy(
+                    news = newsItems,
+                    isLoading = false,
+                    error = null,
+                    hasMorePages = newsItems.size == pageSize
+                )
+                logd("Loaded initial page: ${newsItems.size} items")
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -40,16 +49,52 @@ class NewsListViewModel(
         }
     }
     
+    fun loadMoreNews() {
+        if (!hasMorePages || _uiState.value.isLoadingMore) return
+        
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoadingMore = true)
+            try {
+                currentPage++
+                val newItems = repository.getNewsPage(currentPage, pageSize)
+                val currentNews = _uiState.value.news
+                
+                _uiState.value = _uiState.value.copy(
+                    news = currentNews + newItems,
+                    isLoadingMore = false,
+                    hasMorePages = newItems.size == pageSize
+                )
+                
+                if (newItems.size < pageSize) {
+                    hasMorePages = false
+                }
+                
+                logd("Loaded page $currentPage: ${newItems.size} new items, total: ${_uiState.value.news.size}")
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoadingMore = false,
+                    error = e.message ?: "Failed to load more news"
+                )
+                currentPage-- // Revert page increment on error
+            }
+        }
+    }
+    
     fun refreshNews() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isRefreshing = true)
             try {
-                val freshNews = repository.refreshNews()
+                // Clear cache and reset pagination
+                currentPage = 0
+                hasMorePages = true
+                val freshNews = repository.getNewsPage(currentPage, pageSize)
                 _uiState.value = _uiState.value.copy(
                     news = freshNews,
                     isRefreshing = false,
-                    error = null
+                    error = null,
+                    hasMorePages = freshNews.size == pageSize
                 )
+                logd("Refreshed news: ${freshNews.size} items")
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isRefreshing = false,
@@ -64,5 +109,7 @@ data class NewsListUiState(
     val news: List<NewsItem> = emptyList(),
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
+    val isLoadingMore: Boolean = false,
+    val hasMorePages: Boolean = true,
     val error: String? = null
 )
