@@ -11,8 +11,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import coil3.compose.AsyncImage
 import androidx.compose.material3.CircularProgressIndicator
 
 import com.cosmicmeta.news.data.NewsItem
@@ -33,86 +31,32 @@ fun NewsCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Image (if available)
-            newsItem.imageUrl?.let { imageUrl ->
-                logd("NewsCard displaying image: $imageUrl")
-                
-                var showLoading by remember { mutableStateOf(true) }
-                var hasError by remember { mutableStateOf(false) }
-                
-                // Auto-hide loading after 10 seconds to prevent infinite loading
-                LaunchedEffect(imageUrl) {
-                    delay(10000) // 10 seconds timeout
-                    if (showLoading) {
-                        logd("Image loading timeout for: $imageUrl")
-                        showLoading = false
-                        hasError = true
-                    }
-                }
-                
-                Box {
-                    AsyncImage(
-                        model = imageUrl,
-                        contentDescription = newsItem.title,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                        contentScale = ContentScale.Crop,
-                        onLoading = {
-                            logd("AsyncImage loading: $imageUrl")
-                            showLoading = true
-                            hasError = false
-                        },
-                        onError = { errorState ->
-                            logd("AsyncImage error loading: $imageUrl")
-                            logd("Error details: ${errorState.result.throwable}")
-                            showLoading = false
-                            hasError = true
-                        },
-                        onSuccess = {
-                            logd("AsyncImage successfully loaded: $imageUrl")
-                            showLoading = false
-                            hasError = false
-                        }
+                    // Image placeholder (images will be implemented later)
+        newsItem.imageUrl?.let { imageUrl ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "📰",
+                        style = MaterialTheme.typography.headlineLarge
                     )
-                    
-                    // Show loading or error state
-                    if (showLoading) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    } else if (hasError) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.errorContainer),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "📷",
-                                style = MaterialTheme.typography.headlineLarge,
-                                color = MaterialTheme.colorScheme.onErrorContainer
-                            )
-                        }
-                    }
+                    Text(
+                        text = "Image",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-                
-                Spacer(modifier = Modifier.height(12.dp))
-            } ?: run {
-                logd("NewsCard: No image URL for article '${newsItem.title}'")
             }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
             
             // Title
             Text(
